@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { resetFakeAsyncZone } from '@angular/core/testing';
 import { interval } from 'rxjs';
 
 @Component({
@@ -9,6 +10,7 @@ import { interval } from 'rxjs';
 })
 export class AppComponent implements OnInit {
 
+
   readonly colours = ['#181818', '#a68bf0', '#ffffba']
   readonly shapes = [
     [[0, 0, 0, 0], [0, 1, 1, 1], [0, 0, 1, 0], [0, 0, 0, 0]],
@@ -16,16 +18,17 @@ export class AppComponent implements OnInit {
   ]
 
   grid = Array.from(Array(20), () => new Array(10).fill(0))
-  play = { shape: this.new(), x: 0, y: 3 }
+  play!: { shape: number[][], x: number, y: number }
 
   ngOnInit() {
-    this.add()
-    interval(1000).subscribe(n => {
+    this.reset()
+    this.display(true)
+    interval(750).subscribe(_ => {
       this.move(this.down)
     })
   }
 
-  key = (event: any) => {
+  key(event: any) {
     switch (event.key) {
       case 'a': this.move(this.left); break
       case 'd': this.move(this.right); break
@@ -35,9 +38,10 @@ export class AppComponent implements OnInit {
     }
   }
 
-  new() { return this.shapes[Math.floor(Math.random() * 2)] }
+  newShape() { return this.shapes[Math.floor(Math.random() * 2)] }
 
-  paint(b: boolean) {
+
+  display(b: boolean) {
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
         if (this.play.shape[i][j] != 0)
@@ -45,15 +49,34 @@ export class AppComponent implements OnInit {
       }
     }
   }
-  clear() { this.paint(false) }
-  add() { this.paint(true) }
 
-  move(f: () => any) {
-    this.clear()
+  move(f: () => void) {
+    this.display(false)
     f()
-    this.add()
+    this.display(true)
   }
-  down = () => { if (true) this.play.x++ }
+
+  reset() {
+    if (this.play) this.display(true)
+    this.play = { shape: this.newShape(), x: -1, y: 3 }
+    return false
+  }
+
+  canMoveDown() {
+    for (let i = 3; !!i; i--) {
+      for (let j = 0; j <= 3; j++) {
+        if (this.play.shape[i][j] != 0) {
+          if (this.play.x + i == 19)
+            return this.reset()
+          if (this.grid[this.play.x + i + 1][this.play.y + j] != 0)
+            return this.reset()
+        }
+      }
+    }
+    return true
+  }
+
+  down = () => { if (this.canMoveDown()) this.play.x++ }
   left = () => { if (true) this.play.y-- }
   right = () => { if (true) this.play.y++ }
   spin = () => { }
