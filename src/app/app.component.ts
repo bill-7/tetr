@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { interval } from 'rxjs';
+import { interval, Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -21,22 +21,25 @@ export class AppComponent implements OnInit {
 
   grid = Array.from(Array(20), () => new Array(10).fill(0))
   play!: { shape: number[][], x: number, y: number }
+  run$!: Subscription
 
   ngOnInit() {
     this.reset()
     this.draw(true)
-    interval(750).subscribe(_ => {
+    this.run$ = interval(750).subscribe(_ => {
       this.move(this.down)
     })
   }
 
   key(event: any) {
-    switch (event.key) {
-      case 'a': this.move(this.left); break
-      case 'd': this.move(this.right); break
-      case 'w': this.move(this.spin); break
-      case 's': this.move(this.down); break
-      case ' ': this.move(this.slam); break
+    if (!this.run$.closed) {
+      switch (event.key) {
+        case 'a': this.move(this.left); break
+        case 'd': this.move(this.right); break
+        case 'w': this.move(this.spin); break
+        case 's': this.move(this.down); break
+        case ' ': this.move(this.slam); break
+      }
     }
   }
 
@@ -46,7 +49,7 @@ export class AppComponent implements OnInit {
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
         if (this.play.shape[i][j] != 0) {
-          if (this.grid[i + this.play.x][j + this.play.y] != undefined)
+          if (i + this.play.x > -1 && j + this.play.y > -1)
             this.grid[i + this.play.x][j + this.play.y] = b ? this.play.shape[i][j] : 0
         }
       }
@@ -61,6 +64,7 @@ export class AppComponent implements OnInit {
 
   reset() {
     if (this.play) this.draw(true)
+    // if (this.grid.some((row: number[]) => row.some(x => x !=as 0))) console.log("full row")
     this.play = { shape: this.newShape(), x: -1, y: 3 }
     return false
   }
@@ -71,12 +75,20 @@ export class AppComponent implements OnInit {
         if (this.play.shape[i][j] != 0) {
           if (this.play.x + i == 19)
             return this.reset()
-          if (this.grid[this.play.x + i + 1][this.play.y + j] != 0)
+          if (this.grid[this.play.x + i + 1][this.play.y + j] != 0) {
+            if (this.play.x == -1)
+              this.gameOver()
             return this.reset()
+          }
         }
       }
     }
     return true
+  }
+
+  gameOver() {
+    console.log("game over")
+    this.run$.unsubscribe()
   }
 
   canMoveRight() {
@@ -110,6 +122,15 @@ export class AppComponent implements OnInit {
   down = () => { if (this.canMoveDown()) this.play.x++ }
   left = () => { if (this.canMoveLeft()) this.play.y-- }
   right = () => { if (this.canMoveRight()) this.play.y++ }
-  spin = () => { }
+  spin = () => {
+    if (true) {
+      let result = []
+      for (let i = 0; i < this.play.shape[0].length; i++) {
+        let row = this.play.shape.map(e => e[i]).reverse()
+        result.push(row)
+      }
+      this.play.shape = result
+    }
+  }
   slam = () => { }
 }
