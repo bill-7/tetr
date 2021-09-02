@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { resetFakeAsyncZone } from '@angular/core/testing';
 import { interval } from 'rxjs';
 
 @Component({
@@ -11,18 +10,23 @@ import { interval } from 'rxjs';
 export class AppComponent implements OnInit {
 
 
-  readonly colours = ['#181818', '#a68bf0', '#ffffba']
+  readonly colours = ['#181818', '#a68bf0', '#f0dc78', '#a3e3e6', '#a6de6a', '#eb6e6a', '#637ce0', '#e88f58']
   readonly shapes = [
-    [[0, 0, 0, 0], [0, 1, 1, 1], [0, 0, 1, 0], [0, 0, 0, 0]],
-    [[0, 0, 0, 0], [0, 2, 2, 0], [0, 2, 2, 0], [0, 0, 0, 0]]
+    [[0, 0, 0, 0], [0, 1, 1, 1], [0, 0, 1, 0], [0, 0, 0, 0]], //purple t
+    [[0, 0, 0, 0], [0, 2, 2, 0], [0, 2, 2, 0], [0, 0, 0, 0]], //yellow o
+    [[0, 0, 0, 0], [3, 3, 3, 3], [0, 0, 0, 0], [0, 0, 0, 0]], //cyan i
+    [[0, 0, 0, 0], [0, 0, 4, 4], [0, 4, 4, 0], [0, 0, 0, 0]], //green s
+    [[0, 0, 0, 0], [0, 5, 5, 0], [0, 0, 5, 5], [0, 0, 0, 0]], //red z
+    [[0, 0, 0, 0], [0, 6, 0, 0], [0, 6, 6, 6], [0, 0, 0, 0]], //blue l
+    [[0, 0, 0, 0], [0, 0, 0, 7], [0, 7, 7, 7], [0, 0, 0, 0]], //orange j
   ]
 
   grid = Array.from(Array(20), () => new Array(10).fill(0))
   play!: { shape: number[][], x: number, y: number }
-
+  score = 0
   ngOnInit() {
     this.reset()
-    this.display(true)
+    this.draw(true)
     interval(750).subscribe(_ => {
       this.move(this.down)
     })
@@ -38,26 +42,27 @@ export class AppComponent implements OnInit {
     }
   }
 
-  newShape() { return this.shapes[Math.floor(Math.random() * 2)] }
+  newShape() { return this.shapes[Math.floor(Math.random() * 7)] }
 
-
-  display(b: boolean) {
+  draw(b: boolean) {
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
-        if (this.play.shape[i][j] != 0)
-          this.grid[i + this.play.x][j + this.play.y] = b ? this.play.shape[i][j] : 0
+        if (this.play.shape[i][j] != 0) {
+          if (this.grid[i + this.play.x][j + this.play.y] != undefined)
+            this.grid[i + this.play.x][j + this.play.y] = b ? this.play.shape[i][j] : 0
+        }
       }
     }
   }
 
   move(f: () => void) {
-    this.display(false)
+    this.draw(false)
     f()
-    this.display(true)
+    this.draw(true)
   }
 
   reset() {
-    if (this.play) this.display(true)
+    if (this.play) this.draw(true)
     this.play = { shape: this.newShape(), x: -1, y: 3 }
     return false
   }
