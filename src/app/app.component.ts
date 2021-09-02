@@ -8,22 +8,20 @@ import { interval } from 'rxjs';
   host: { '(document:keypress)': 'key($event)' }
 })
 export class AppComponent implements OnInit {
-
-
   readonly colours = ['#181818', '#a68bf0', '#f0dc78', '#a3e3e6', '#a6de6a', '#eb6e6a', '#637ce0', '#e88f58']
   readonly shapes = [
-    [[0, 0, 0, 0], [0, 1, 1, 1], [0, 0, 1, 0], [0, 0, 0, 0]], //purple t
-    [[0, 0, 0, 0], [0, 2, 2, 0], [0, 2, 2, 0], [0, 0, 0, 0]], //yellow o
-    [[0, 0, 0, 0], [3, 3, 3, 3], [0, 0, 0, 0], [0, 0, 0, 0]], //cyan i
-    [[0, 0, 0, 0], [0, 0, 4, 4], [0, 4, 4, 0], [0, 0, 0, 0]], //green s
-    [[0, 0, 0, 0], [0, 5, 5, 0], [0, 0, 5, 5], [0, 0, 0, 0]], //red z
-    [[0, 0, 0, 0], [0, 6, 0, 0], [0, 6, 6, 6], [0, 0, 0, 0]], //blue l
-    [[0, 0, 0, 0], [0, 0, 0, 7], [0, 7, 7, 7], [0, 0, 0, 0]], //orange j
+    [[0, 0, 0, 0], [0, 1, 1, 1], [0, 0, 1, 0], [0, 0, 0, 0]],
+    [[0, 0, 0, 0], [0, 2, 2, 0], [0, 2, 2, 0], [0, 0, 0, 0]],
+    [[0, 0, 0, 0], [3, 3, 3, 3], [0, 0, 0, 0], [0, 0, 0, 0]],
+    [[0, 0, 0, 0], [0, 0, 4, 4], [0, 4, 4, 0], [0, 0, 0, 0]],
+    [[0, 0, 0, 0], [0, 5, 5, 0], [0, 0, 5, 5], [0, 0, 0, 0]],
+    [[0, 0, 0, 0], [0, 6, 0, 0], [0, 6, 6, 6], [0, 0, 0, 0]],
+    [[0, 0, 0, 0], [0, 0, 0, 7], [0, 7, 7, 7], [0, 0, 0, 0]]
   ]
 
   grid = Array.from(Array(20), () => new Array(10).fill(0))
   play!: { shape: number[][], x: number, y: number }
-  score = 0
+
   ngOnInit() {
     this.reset()
     this.draw(true)
@@ -81,9 +79,37 @@ export class AppComponent implements OnInit {
     return true
   }
 
+  canMoveRight() {
+    for (let j = 3; !!j; j--) {
+      for (let i = 3; !!i; i--) {
+        if (this.play.shape[i][j] != 0) {
+          if (this.play.y + j == 9)
+            return false
+          if (this.grid[this.play.x + i][this.play.y + j + 1] != 0)
+            return false
+        }
+      }
+    }
+    return true
+  }
+
+  canMoveLeft() {
+    for (let i = 0; i <= 3; i++) {
+      for (let j = 0; j <= 3; j++) {
+        if (this.play.shape[i][j] != 0) {
+          if (this.play.y + j == 0)
+            return false
+          if (this.grid[this.play.x + i][this.play.y + j - 1] != 0)
+            return false
+        }
+      }
+    }
+    return true
+  }
+
   down = () => { if (this.canMoveDown()) this.play.x++ }
-  left = () => { if (true) this.play.y-- }
-  right = () => { if (true) this.play.y++ }
+  left = () => { if (this.canMoveLeft()) this.play.y-- }
+  right = () => { if (this.canMoveRight()) this.play.y++ }
   spin = () => { }
   slam = () => { }
 }

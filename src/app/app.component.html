@@ -1,11 +1,7 @@
 <div class="container">
   <div>
     <div *ngFor="let row of grid">
-      <div *ngFor="let cell of row" [ngStyle]="{ 'background-color': colours[cell] }" class="tile">
-        &nbsp;
-      </div><br>
+      <div *ngFor="let cell of row" [ngStyle]="{ 'background-color': colours[cell] }" class="tile"></div>
     </div>
   </div>
-  <br>
-  <!-- <p>Score: {{score}}</p> -->
 </div>
