@@ -64,9 +64,21 @@ export class AppComponent implements OnInit {
 
   reset() {
     if (this.play) this.draw(true)
-    if (this.grid.some((row: number[], i) => !row.some(c => c == 0))) console.log("full row")
+
+    this.eraseFullRows()
+
     this.play = { shape: this.newShape(), x: 3, y: -1 }
     return false
+  }
+
+  eraseFullRows() {
+    for (let i = 0; i < this.grid.length; i++) {
+      if (!this.grid[i].some(cell => cell == 0)) {
+        this.grid.splice(i, 1)
+        this.grid.unshift(new Array(10).fill(0))
+        console.log(i)
+      }
+    }
   }
 
   canMoveDown() {
