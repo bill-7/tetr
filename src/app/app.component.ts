@@ -49,8 +49,8 @@ export class AppComponent implements OnInit {
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
         if (this.play.shape[i][j] != 0) {
-          if (i + this.play.x > -1 && j + this.play.y > -1)
-            this.grid[i + this.play.x][j + this.play.y] = b ? this.play.shape[i][j] : 0
+          if (i + this.play.y > -1 && j + this.play.x > -1)
+            this.grid[i + this.play.y][j + this.play.x] = b ? this.play.shape[i][j] : 0
         }
       }
     }
@@ -64,8 +64,8 @@ export class AppComponent implements OnInit {
 
   reset() {
     if (this.play) this.draw(true)
-    // if (this.grid.some((row: number[]) => row.some(x => x !=as 0))) console.log("full row")
-    this.play = { shape: this.newShape(), x: -1, y: 3 }
+    if (this.grid.some((row: number[], i) => !row.some(c => c == 0))) console.log("full row")
+    this.play = { shape: this.newShape(), x: 3, y: -1 }
     return false
   }
 
@@ -73,10 +73,10 @@ export class AppComponent implements OnInit {
     for (let i = 3; !!i; i--) {
       for (let j = 0; j <= 3; j++) {
         if (this.play.shape[i][j] != 0) {
-          if (this.play.x + i == 19)
+          if (this.play.y + i == 19)
             return this.reset()
-          if (this.grid[this.play.x + i + 1][this.play.y + j] != 0) {
-            if (this.play.x == -1)
+          if (this.grid[this.play.y + i + 1][this.play.x + j] != 0) {
+            if (this.play.y == -1)
               this.gameOver()
             return this.reset()
           }
@@ -95,9 +95,9 @@ export class AppComponent implements OnInit {
     for (let j = 3; !!j; j--) {
       for (let i = 3; !!i; i--) {
         if (this.play.shape[i][j] != 0) {
-          if (this.play.y + j == 9)
+          if (this.play.x + j == 9)
             return false
-          if (this.grid[this.play.x + i][this.play.y + j + 1] != 0)
+          if (this.grid[this.play.y + i][this.play.x + j + 1] != 0)
             return false
         }
       }
@@ -109,9 +109,9 @@ export class AppComponent implements OnInit {
     for (let i = 0; i <= 3; i++) {
       for (let j = 0; j <= 3; j++) {
         if (this.play.shape[i][j] != 0) {
-          if (this.play.y + j == 0)
+          if (this.play.x + j == 0)
             return false
-          if (this.grid[this.play.x + i][this.play.y + j - 1] != 0)
+          if (this.grid[this.play.y + i][this.play.x + j - 1] != 0)
             return false
         }
       }
@@ -119,9 +119,9 @@ export class AppComponent implements OnInit {
     return true
   }
 
-  down = () => { if (this.canMoveDown()) this.play.x++ }
-  left = () => { if (this.canMoveLeft()) this.play.y-- }
-  right = () => { if (this.canMoveRight()) this.play.y++ }
+  down = () => { if (this.canMoveDown()) this.play.y++ }
+  left = () => { if (this.canMoveLeft()) this.play.x-- }
+  right = () => { if (this.canMoveRight()) this.play.x++ }
   spin = () => {
     if (true) {
       let result = []
