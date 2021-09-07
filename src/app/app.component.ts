@@ -129,6 +129,14 @@ export class AppComponent implements OnInit {
         let row = this.play.shape.map(e => e[i]).reverse()
         result.push(row)
       }
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+          if (result[i][j] != 0) {
+            if (this.grid[i + this.play.y][j + this.play.x] != 0)
+              return
+          }
+        }
+      }
       this.play.shape = result
     }
   }
