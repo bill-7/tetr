@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
     [[0, 0, 0, 0], [0, 6, 0, 0], [0, 6, 6, 6], [0, 0, 0, 0]],
     [[0, 0, 0, 0], [0, 0, 0, 7], [0, 7, 7, 7], [0, 0, 0, 0]]
   ]
-
+  score = 0
   grid = Array.from(Array(20), () => new Array(10).fill(0))
   play!: { shape: number[][], x: number, y: number }
   run$!: Subscription
@@ -43,6 +43,32 @@ export class AppComponent implements OnInit {
     }
   }
 
+  move(f: () => void) {
+    this.draw(false)
+    f()
+    this.draw(true)
+  }
+
+  down = () => { if (this.canMoveDown()) this.play.y++ }
+  left = () => { if (this.canMoveLeft()) this.play.x-- }
+  right = () => { if (this.canMoveRight()) this.play.x++ }
+  spin = () => {
+    let result = []
+    for (let i = 0; i < this.play.shape[0].length; i++) {
+      let row = this.play.shape.map(e => e[i]).reverse()
+      result.push(row)
+    }
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        if (result[i][j] != 0) {
+          if (this.grid[i + this.play.y][j + this.play.x] != 0)
+            return
+        }
+      }
+    }
+    this.play.shape = result
+  }
+
   newShape() { return this.shapes[Math.floor(Math.random() * 7)] }
 
   draw(b: boolean) {
@@ -56,30 +82,7 @@ export class AppComponent implements OnInit {
     }
   }
 
-  move(f: () => void) {
-    this.draw(false)
-    f()
-    this.draw(true)
-  }
 
-  reset() {
-    if (this.play) this.draw(true)
-
-    this.eraseFullRows()
-
-    this.play = { shape: this.newShape(), x: 3, y: -1 }
-    return false
-  }
-
-  eraseFullRows() {
-    for (let i = 0; i < this.grid.length; i++) {
-      if (!this.grid[i].some(cell => cell == 0)) {
-        this.grid.splice(i, 1)
-        this.grid.unshift(new Array(10).fill(0))
-        console.log(i)
-      }
-    }
-  }
 
   canMoveDown() {
     for (let i = 3; !!i; i--) {
@@ -96,6 +99,25 @@ export class AppComponent implements OnInit {
       }
     }
     return true
+  }
+
+  reset() {
+    if (this.play) this.draw(true)
+    this.eraseFullRows()
+    this.play = { shape: this.newShape(), x: 3, y: -1 }
+    return false
+  }
+
+  eraseFullRows() {
+    let s = 0
+    for (let i = 0; i < this.grid.length; i++) {
+      if (!this.grid[i].some(cell => cell == 0)) {
+        s++
+        this.grid.splice(i, 1)
+        this.grid.unshift(new Array(10).fill(0))
+      }
+    }
+    this.score += (s * s * 10)
   }
 
   gameOver() {
@@ -131,26 +153,6 @@ export class AppComponent implements OnInit {
     return true
   }
 
-  down = () => { if (this.canMoveDown()) this.play.y++ }
-  left = () => { if (this.canMoveLeft()) this.play.x-- }
-  right = () => { if (this.canMoveRight()) this.play.x++ }
-  spin = () => {
-    if (true) {
-      let result = []
-      for (let i = 0; i < this.play.shape[0].length; i++) {
-        let row = this.play.shape.map(e => e[i]).reverse()
-        result.push(row)
-      }
-      for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 4; j++) {
-          if (result[i][j] != 0) {
-            if (this.grid[i + this.play.y][j + this.play.x] != 0)
-              return
-          }
-        }
-      }
-      this.play.shape = result
-    }
-  }
+
   slam = () => { }
 }
